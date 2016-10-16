@@ -12,9 +12,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import se.marcusrehn.chickentime.logic.FoodProcessor;
 
 /**
  * Created by rehnen on 2016-10-09.
@@ -46,7 +47,6 @@ public class ChickenGatherer extends AsyncTask<URL, Integer, String> {
                 sb.append(line);
             }
 
-
             return sb.toString();
 
         } catch (MalformedURLException e) {
@@ -62,30 +62,17 @@ public class ChickenGatherer extends AsyncTask<URL, Integer, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        String message = "Disapoint";
+        String message = FoodProcessor.NO_CHICKEN;
 
-        String special = s.substring(s.indexOf("this week's special"), s.indexOf("<p><b>Monday</b><br />"));
-        Calendar c = Calendar.getInstance();
-        String day = c.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
+        String special = FoodProcessor.getWeeklyFoodMessage(s);
 
-        String todaydsFood = "";
+        String day = Calendar.getInstance().getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
+        String foodOfTheDay = FoodProcessor.getFoodMessageForDay(s, day);
 
-        if(!day.equals("Saturday") && !day.equals("Sunday")) {
-            todaydsFood = s.substring(s.indexOf("<p><b>"+ day +"</b><br />"));
-            todaydsFood = todaydsFood.substring(0, todaydsFood.indexOf("</p>"));
-        }
-
-        if(special.toLowerCase().contains("chicken")) {
-
-            message = "Chicken all week";
-
-        } else if(todaydsFood.toLowerCase().contains("chicken")) {
-
-            message = "The gods are smiling this " + day;
-
-        } else {
-
-            message = "No chicken today :(";
+        if(foodOfTheDay.contains(FoodProcessor.CHICKEN_DAY) || foodOfTheDay.equals(FoodProcessor.AIOLI)) {
+            message = foodOfTheDay;
+        } else if(special.equals(FoodProcessor.CHICKEN_WEEK)) {
+            message = special;
         }
 
         Toast.makeText(this.context,
