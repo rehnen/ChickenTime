@@ -39,12 +39,16 @@ public final class FoodProcessor {
 
     public static String getWeeklyFoodMessage(String document) {
         String message = NO_CHICKEN;
-        boolean chicken = document.substring(document.indexOf("this week's special"), document.indexOf("<p><b>Monday</b><br />"))
-            .toLowerCase()
-            .contains(CHICKEN);
 
-        if(chicken) {
-            message = CHICKEN_WEEK;
+        int specialPosition = document.indexOf("this week's special");
+        if(specialPosition > -1) {
+            boolean chicken = document.substring(document.indexOf("this week's special"), document.indexOf("<p><b>Monday</b><br />"))
+                    .toLowerCase()
+                    .contains(CHICKEN);
+
+            if(chicken) {
+                message = CHICKEN_WEEK;
+            }
         }
 
         return message;
